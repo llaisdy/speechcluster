@@ -1,33 +1,4 @@
-#! /usr/bin/env python
-
-# Copyright (c) 2005, University of Wales, Bangor 
-# All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-# 
-#   * Redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
-#   * Redistributions in binary form must reproduce the above copyright
-# notice, this list of conditions and the following disclaimer in the
-# documentation and/or other materials provided with the distribution.
-#   * Neither the name of the University of Wales, Bangor nor the names
-# of its contributors may be used to endorse or promote products
-# derived from this software without specific prior written permission.
-# 
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+#! /usr/bin/env python3
 
 """
 * speechCluster: central API for SpeechCluster objects
@@ -38,7 +9,7 @@
 
 import audioop, math, os, re, wave
 
-silence = '\x00\x00' * 8000 # half a second's silence
+silence = b'\x00\x00' * 8000 # half a second's silence
 
 class SpeechCluster:
     formatDict = {'.seg': 'esps',
@@ -85,7 +56,7 @@ class SpeechCluster:
         # lines with misc whitespace --> '\n'
         # TODO: or with misc whitespace at end of line
         for i in range(len(data)):
-            m = re.match('\s+', data[i]) 
+            m = re.match(r'\s+', data[i])
             if m and m.end() == len(data[i]):
                 data[i] = '\n'
         hidx = data.index(sep) + 1
@@ -129,8 +100,8 @@ class SpeechCluster:
                     #firstOldLabel = spacedKeys[lab][0].split()[0]
                     secondOldLabel = spacedKeys[lab][0].split()[1]
                     newLabel = spacedKeys[lab][1]
-                    print '%s + %s -> %s' \
-                          % (lab, secondOldLabel, newLabel)
+                    print('%s + %s -> %s' \
+                          % (lab, secondOldLabel, newLabel))
                     if self.tiers[i][j+1].label == secondOldLabel:
                         newseg = Segment()
                         newseg.min = self.tiers[i][j].min
@@ -173,8 +144,8 @@ class SpeechCluster:
                     # fields[2] = label
                     if len(fields) != 3:
                         if self.debug is True:
-                            print 'DEBUG: N FIELDS: %s line: %s' % (fn, line)
-                            print tier
+                            print('DEBUG: N FIELDS: %s line: %s' % (fn, line))
+                            print(tier)
                         #else:
                         pass # what then!?
                     else:
@@ -208,8 +179,8 @@ class SpeechCluster:
                 # fields[2] = label
                 if len(fields) != 3:
                     if self.debug is True:
-                        print 'DEBUG: N FIELDS: %s line: %s' % (fn, line)
-                        print tier
+                        print('DEBUG: N FIELDS: %s line: %s' % (fn, line))
+                        print(tier)
                     #else:
                     pass # what then!?
                 else:
@@ -418,19 +389,19 @@ class SpeechCluster:
         nframes = data.getnframes()
         endTime = nframes*1.0/frate
         rmsFull = audioop.rms(data.readframes(nframes), width)
-        #print 'rmsFull = ', rmsFull
+        #print('rmsFull = ', rmsFull)
         data.rewind()
         window = int(frate*windowSize)
-        step = window/2
+        step = int(window/2)
         while data.tell() < nframes-step:
             sample = data.readframes(window)
             rms = audioop.rms(sample, width)
             if rms > rmsFull/10:
                 now = data.tell()*1.0/frate
                 noiseTimes.append(now)
-                #print '%s\t%s' % (rms, now)
+                #print('%s\t%s' % (rms, now))
             #else:
-            #    print rms
+            #    print(rms)
             data.setpos(data.tell()-step)
         return noiseTimes[0]-(windowSize/2), noiseTimes[-1], endTime
 
@@ -487,19 +458,19 @@ class SpeechCluster:
             audioData += silence
         out.writeframes(audioData)
         out.close()
-                
+
     def read_format(self, fn):
         import os
         fstem, fext = os.path.splitext((os.path.basename(fn)))
         if fext:
             self.fstem = fstem
-            format = self.formatDict[fext.lower()]
+            format = self.formatDict.get(fext.lower(), None)
             if format == 'esps': self.read_ESPS(fn)
             elif format == 'TextGrid': self.read_TextGrid(fn)
             elif format == 'wav': self.read_wav(fn)
             elif format == 'htk-lab': self.read_HTKLab(fn)
             elif format == 'pitchmark': self.read_pm(fn)
-            else: pass # no other formats supported yet
+            else: pass # unsupported format, ignore
             self.segFormat = format
         else: # fn is a stem; load all files with same stem (inc audio)
             path, fn = os.path.split(fn)
@@ -723,17 +694,14 @@ class SpeechCluster:
             # update
             count += 1
 
-##        $ESTDIR/bin/ch_wave -scaleN 0.9 $i -F 16000 -o /tmp/tmp$$.wav
-##        $ESTDIR/bin/pitchmark /tmp/tmp$$.wav -o pm/$fname.pm \
+##        ch_wave -scaleN 0.9 $i -F 16000 -o /tmp/tmp$$.wav
+##        pitchmark /tmp/tmp$$.wav -o pm/$fname.pm \
 ##                  -otype est -min 0.005 -max 0.012 -fill -def 0.01 \
 ##                  -wave_end -lx_lf 200 -lx_lo 71 -lx_hf 80 -lx_ho 71 -med_o 0
-##
-## male: min = 0.005, max = 0.012
-## female: min = 0.0033, max = 0.7
 
-    pitchCmd1 = '$ESTDIR/bin/ch_wave -scaleN 0.9 *WAV_FN* -F 16000 -o tmp.wav'
+    pitchCmd1 = 'ch_wave -scaleN 0.9 *WAV_FN* -F 16000 -o tmp.wav'
 
-    pitchCmd2 = '$ESTDIR/bin/pitchmark tmp.wav -o *FSTEM*.pm ' \
+    pitchCmd2 = 'pitchmark tmp.wav -o *FSTEM*.pm ' \
                 '-otype est -min *MIN* -max *MAX* -fill -def 0.01 ' \
                 '-wave_end -lx_lf 200 -lx_lo 71 -lx_hf 80 -lx_ho 71 -med_o 0'
 
@@ -743,13 +711,11 @@ class SpeechCluster:
     def getPitchmarks(self, speakerGender='female'):
         if not self.getTierByName('Pitch'):
             cmd = self.pitchCmd1.replace('*WAV_FN*', self.audioFn)
-            #print cmd
             os.system(cmd)
             pgmin, pgmax = self.pitchGenderDict[speakerGender]
             cmd = self.pitchCmd2.replace('*MIN*', pgmin)
             cmd = cmd.replace('*MAX*', pgmax)
             cmd = cmd.replace('*FSTEM*', self.fstem)
-            #print cmd
             os.system(cmd)
             seg = SpeechCluster('%s.pm' % self.fstem)
             self.merge(seg)
@@ -842,10 +808,10 @@ class Segment:
         return '%s\t(%s, %s)' % (self.label, self.min, self.max)
 
 def printUsage():
-    print """
+    print("""
 Label file converter.
 
-"""
+""")
     
 if __name__ == '__main__':
     pass
