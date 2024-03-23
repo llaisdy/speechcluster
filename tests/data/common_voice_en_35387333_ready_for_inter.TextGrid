@@ -1,0 +1,76 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 3.672 
+tiers? <exists> 
+size = 2 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "Word-pre" 
+        xmin = 0 
+        xmax = 3.672 
+        intervals: size = 7 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3910271937266256 
+            text = "sil" 
+        intervals [2]:
+            xmin = 1.3910271937266256 
+            xmax = 1.6871653740698145 
+            text = "noone" 
+        intervals [3]:
+            xmin = 1.6871653740698145 
+            xmax = 1.9507441342683285 
+            text = "else" 
+        intervals [4]:
+            xmin = 1.9507441342683285 
+            xmax = 2.1887363148411856 
+            text = "could" 
+        intervals [5]:
+            xmin = 2.1887363148411856 
+            xmax = 2.6012253861337973 
+            text = "claim" 
+        intervals [6]:
+            xmin = 2.6012253861337973 
+            xmax = 2.8808304893721433 
+            text = "that" 
+        intervals [7]:
+            xmin = 2.8808304893721433 
+            xmax = 3.672 
+            text = "sil" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "Word" 
+        xmin = 0 
+        xmax = 3.672 
+        intervals: size = 7 
+        intervals [1]:
+            xmin = 0 
+            xmax = 1.3910271937266256 
+            text = "" 
+        intervals [2]:
+            xmin = 1.3910271937266256 
+            xmax = 1.6871653740698145 
+            text = "" 
+        intervals [3]:
+            xmin = 1.6871653740698145 
+            xmax = 1.9507441342683285 
+            text = "" 
+        intervals [4]:
+            xmin = 1.9507441342683285 
+            xmax = 2.1887363148411856 
+            text = "" 
+        intervals [5]:
+            xmin = 2.1887363148411856 
+            xmax = 2.6012253861337973 
+            text = "" 
+        intervals [6]:
+            xmin = 2.6012253861337973 
+            xmax = 2.8808304893721433 
+            text = "" 
+        intervals [7]:
+            xmin = 2.8808304893721433 
+            xmax = 3.672 
+            text = "" 

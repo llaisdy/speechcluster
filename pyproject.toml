@@ -1,0 +1,25 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61.0"]
+
+[project]
+name = "speechcluster"
+version = "2.0.0"
+authors = [
+  { name="Ivan Uemlianin", email="ivan@llaisdy.co.uk" },
+]
+description = "A speech database builder's multitool"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+sc = "speechcluster.sc:main"
+
+[project.urls]
+Homepage = "https://github.com/llaisdy/speechcluster"
+Issues = "https://github.com/llaisdy/speechcluster/issues"

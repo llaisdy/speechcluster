@@ -7,7 +7,10 @@
 
 """
 
-from speechCluster import *
+import json
+
+from .speechCluster import *
+from .utils import set_directory
 
 def segInter(fn, labList, level='Word'):
     seg = SpeechCluster(fn)
@@ -16,15 +19,17 @@ def segInter(fn, labList, level='Word'):
     for segment in tier:
         if segment.label == '':
             segment.label = labList.pop(0)
-    open(fn, 'w').write(seg.write_format())
+    with open(fn, 'w') as f:
+        f.write(seg.write_format())
 
 
-def segInterDir(dir, promptFn, level='Word'):
-    items = parsePromptFn(promptFn)
-    import os
-    os.chdir(dir)
-    for i in items:
-        segInter(i[0], i[1], level)
+def segInterDir(dirn, transDict, level='Word'):
+    items = list(transDict.items())
+    with set_directory(dirn):
+        for fstem, phonData in items:
+            fn = f'{fstem}.TextGrid'
+            labList = phonData.replace('.', '').replace('"', '').split()
+            segInter(fn, labList, level)
 
 def parsePromptFn(promptFn):
     items = []
@@ -37,7 +42,8 @@ def parsePromptFn(promptFn):
         items.append((fn, ll))
     return items
 
-def prepLabs(labList):
+def prepLabs(labs):
+    labList = labs[:]
     if labList[0][0] in ['"', "'"]: # remove quotes
         labList[0] = labList[0][1:]
         labList[-1] = labList[-1][:-1]
@@ -81,7 +87,8 @@ if __name__ == '__main__':
         if args and oDict.get('-f'):
             segInter(oDict['-f'], args, oDict.get('-l', 'Word'))
         elif oDict.get('-d') and oDict.get('-i'):
-            segInterDir(oDict['-d'], oDict['-i'], oDict.get('-l', 'Word'))
+            transDict = json.load(open(oDict['-i']))['transDict']
+            segInterDir(oDict['-d'], transDict, oDict.get('-l', 'Word'))
         else:
             printUsage()
     else:

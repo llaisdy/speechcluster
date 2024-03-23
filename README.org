@@ -1,25 +1,11 @@
-* SpeechCluster: A speech database builder's multitool :TOC_3_gh:QUOTE:
-#+BEGIN_QUOTE
-  - [[#revisiting-the-toolkit-and-work-in-progress][Revisiting the toolkit, and work in progress]]
-  - [[#introduction][Introduction]]
-    - [[#requirements][Requirements]]
-    - [[#download][Download]]
-    - [[#further-work][Further work]]
-  - [[#speechclusterpy][SpeechCluster.py]]
-  - [[#command-line-tools][Command-line tools]]
-    - [[#segfakepy][segFake.py]]
-    - [[#seginterpy][segInter.py]]
-    - [[#segmergepy][segMerge.py]]
-    - [[#segreplacepy][segReplace.py]]
-    - [[#segswitchpy][segSwitch.py]]
-    - [[#splitallpy][splitAll.py]]
-    - [[#segdibopy][segDiBo.py]]
-    - [[#trimpy][trim.py]]
-  - [[#acknowledgements][Acknowledgements]]
-  - [[#references][References]]
-#+END_QUOTE
+* SpeechCluster: A speech database builder's multitool
 
-** Revisiting the toolkit, and work in progress
+** TODO README todos
+- dibo deprecation
+- new commandline arg names
+- new ~sc~
+
+** TODO Revisiting the toolkit, and work in progress
 
 I have updated the Python sufficiently for SpeechCluster and the command-line tools to work with Python 3.12.  If there is interest, I also plan to modernise the code properly, eg:
 
@@ -33,7 +19,9 @@ I have updated the Python sufficiently for SpeechCluster and the command-line to
 
     ~sc fake -d wav -t trans.txt -o TextGrid~
 
-** Introduction
+The three audio files in ~test/data/~ are taken from Mozilla's [[https://commonvoice.mozilla.org][Common Voice]] corpus for English.  The TextGrid files were created using segFake, as in ~segFake.py -d test/data -t test/data/common_voice_en.tf -o TextGrid~.
+
+** DONE Introduction
 
 Speech technology research & development includes a lot of very exciting challenges.  It also includes a lot of tedious and repetitive data manipulation.  Like most people, I write scripts to help me process the data.  As the scripts are reused and extended, I continuously refactor them, and SpeechCluster and its associated tools are the result.  
 
@@ -81,7 +69,7 @@ There is no development plan as such (at all, in fact):  SpeechCluster accompani
 - developing a 'Corpus' class, to handle bodies of data.  This will probably include interfacing with EMU.
 - improving SpeechCluster's interactions with [[http://www.bangor.ac.uk/~cbs007/pyhtk/README.html][PyHTK]].
 
-** SpeechCluster.py
+** TODO ~sc~ and its subcommands -- WAS: Command-line tools
 
 SpeechCluster.py is a python module containing some object classes - Segment, SegmentationTier and SpeechCluster - which represent speech segmentation and the associated audio.  SpeechCluster can read and write a number of label file formats, and wav format audio.  The Command-line tools below cover the most common use-cases (so far).
 
@@ -293,11 +281,29 @@ Trims beginning and end silence from wav files, adjusts any associated label fil
                       # leaving .5s padding
 #+end_src
 
-** Acknowledgements
+** DONE SpeechCluster.py
+
+SpeechCluster.py is a python module containing some object classes - Segment, SegmentationTier and SpeechCluster - which represent speech segmentation and the associated audio.  SpeechCluster can read and write a number of label file formats, and wav format audio.
+
+Supported Label formats include:
+
+|-----------+----------------------------------+--------------------|
+| Format    | As used by                       | SpeechCluster name |
+|-----------+----------------------------------+--------------------|
+| .TextGrid | Praat                            | TextGrid           |
+| .lab      | Emu, Festival                    | lab, esps          |
+| .lab      | HTK (n.b.: different from above) | htk-lab            |
+| .mlf      | HTK                              | htk-mlf            |
+| .txt      | HTK                              | htk-grm            |
+|-----------+----------------------------------+--------------------|
+
+SpeechCluster can read/write/convert any of these formats in any direction.
+
+** DONE Acknowledgements
 
 This work was carried out as part of the project 'Welsh and Irish Speech Processing Resources' (Prys, et al., 2004).  WISPR was funded by the Interreg IIIA European Union Programme and the Welsh Language Board. I should also like to acknowledge support and feedback from other members of the WISPR team, in particular Briony Williams and Aine Ni Bhrian.
 
-** References
+** DONE References
 
 Prys, Delyth, Briony Williams, Bill Hicks, Dewi Jones, Ailbhe Ní Chasaide, Christer Gobl, Julie Berndsen, Fred Cummins, Máire Ní Chiosáin, John McKenna, Rónán Scaife, Elaine Uí Dhonnchadha.  (2004).  /WISPR: Speech Processing Resources for Welsh and Irish/.  Pre-Conference Workshop on First Steps for Language Documentation of Minority Languages, 4th Language Resources and Evaluation Conference (LREC), Lisbon, Portugal, 24-30 May 2004.
 

@@ -7,7 +7,9 @@
 
 """
 
-from speechCluster import *
+import json
+
+from .speechCluster import *
 
 def fakeLabel(fn, phoneList, outFormat='TextGrid'):
     seg = SpeechCluster(fn)
@@ -61,27 +63,32 @@ Output Formats supported:
   htk               .htk-lab, .htk-mlf
     
 """)
+
+def fakeLabel_and_write(wavFn, phonData, outFormat):
+    seg = fakeLabel(wavFn, phonData, outFormat)
+    fstem = os.path.splitext(wavFn)[0]
+    segFn = '%s.%s' % (fstem, outFormat)
+    open('%s' % segFn, 'w').write(seg)
+
+def fakeLabel_and_write_dir(wavDir, transDict, outFormat):
+    lines = list(transDict.items())
+    os.chdir(wavDir)
+    for wavFn, phonData in lines:
+        phonData = phonData.replace('.', '').replace('"', '').split()
+        fakeLabel_and_write(wavFn, phonData, outFormat)
     
 if __name__ == '__main__':
     import getopt, sys
-    options, args = getopt.getopt(sys.argv[1:], 'd:f:t:o:')
+    options, args = getopt.getopt(sys.argv[1:], 'd:f:c:o:')
     oDict = dict(options)
     if oDict.get('-f') and oDict.get('-o'):
         wavFn = oDict['-f']
         outFormat = oDict['-o']
-        seg = fakeLabel(wavFn, args, outFormat)
-        segFn = '%s.%s' % (os.path.splitext(wavFn)[0], outFormat)
-        open('%s' % segFn, 'w').write(seg)
-    elif oDict.get('-d') and oDict.get('-t') and oDict.get('-o'):
+        fakeLabel_and_write(wavFn, args, outFormat)
+    elif oDict.get('-d') and oDict.get('-c') and oDict.get('-o'):
         wavDir = oDict['-d']
-        transFn = oDict['-t']
+        transDict = json.load(open(oDict['-c']))['transDict']
         outFormat = oDict['-o']
-        for line in list(open(transFn)):
-            phonData = line[1:-2].replace('.', '').replace('"', '').split()
-            fstem = phonData.pop(0)
-            wavFn = '%s/%s.wav' % (wavDir, fstem)
-            seg = fakeLabel(wavFn, phonData, outFormat)
-            segFn = '%s.%s' % (fstem, outFormat)
-            open('%s/%s' % (wavDir, segFn), 'w').write(seg)
+        fakeLabel_and_write_dir(wavDir, transDict, outFormat)
     else:
         printUsage()

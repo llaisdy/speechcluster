@@ -9,7 +9,8 @@ and to what extent.
 """
 
 import os
-from speechCluster import *
+from .speechCluster import *
+from.utils import file_write
 
 def segSwitch(inFn, outFn, debug=False):
     """
@@ -43,13 +44,13 @@ Uses filename extensions to find out input & output formats.
             tier.setName('Phone') # TODO: Magic text!!
             spcl.updateTiers(tier)
             out = spcl.write_format(outFormat)
-            open(fn, 'w').write(out)
+            file_write(fn, out)
     else:
         spcl = SpeechCluster(inFn, debug)
         ofext = os.path.splitext(outFn)[1]
         outFormat = SpeechCluster.formatDict[ofext.lower()]
         out = spcl.write_format(outFormat)
-        open(outFn, 'w').write(out)
+        file_write(outFn, out)
 
 def segSwitchDir(dir, outFormat, debug=False):
     """
@@ -69,9 +70,9 @@ as filename.<outFormat>
         for inFn in os.listdir(os.getcwd()):
             spcl = SpeechCluster(inFn, debug)
             this = spcl.write_format('htk-lab')
-            open('%s.lab'% os.path.splitext(inFn)[0], 'w').write(this)
+            file_write(f'{os.path.splitext(inFn)[0]}.lab', this)
             out = '%s%s' % (out, this)
-        open('htk_labels.%s' % outFormat, 'w').write(out)
+        file_write(f'htk_labels.{outFormat}', out)
     else:
         for inFn in os.listdir(os.getcwd()):
             outFn = '%s.%s' % (os.path.splitext(inFn)[0], outFormat)

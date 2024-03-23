@@ -9,6 +9,8 @@
 
 import audioop, math, os, re, wave
 
+from .utils import file_write
+
 silence = b'\x00\x00' * 8000 # half a second's silence
 
 class SpeechCluster:
@@ -52,16 +54,17 @@ class SpeechCluster:
         if segFn: self.read_format(segFn)
 
     def getHeadBody(self, fn, sep):
-        data = list(open(fn))
-        # lines with misc whitespace --> '\n'
-        # TODO: or with misc whitespace at end of line
-        for i in range(len(data)):
-            m = re.match(r'\s+', data[i])
-            if m and m.end() == len(data[i]):
-                data[i] = '\n'
-        hidx = data.index(sep) + 1
-        head, body = data[0:hidx], data[hidx:]
-        return head, body
+        with open(fn) as f:
+            data = list(f)
+            # lines with misc whitespace --> '\n'
+            # TODO: or with misc whitespace at end of line
+            for i in range(len(data)):
+                m = re.match(r'\s+', data[i])
+                if m and m.end() == len(data[i]):
+                    data[i] = '\n'
+            hidx = data.index(sep) + 1
+            head, body = data[0:hidx], data[hidx:]
+            return head, body
 
     def updateTiers(self, tier):
         tier.dataMax = max(self.dataMax, tier[-1].max)
@@ -273,10 +276,10 @@ class SpeechCluster:
             self.audioSampleSize = other.audioSampleSize
             
 
-    def write_ESPS(self, format, tier='Phone'):
-        ### TODO: magic text! only one tier!
+    def write_ESPS(self, format, tierName='Phone'):
+        ### TODO magic text! only one tier!
         out = '%s\n' % (self.writeHead(format))
-        # what about writing multiple tiers?
+        # TODO what about writing multiple tiers?
         if len(self.tiers) > 1:
             tier = self.getTierByName(tierName)
         else:
@@ -512,7 +515,7 @@ class SpeechCluster:
             # saveDir = '%s.d' % self.fstem or similar
             pass
         # if not os.path.exists(saveDir): mkdir(saveDir)
-        if not splitCriteria['label']:
+        if not splitCriteria.get('label'):
             if splitCriteria['tier'] in self.timesDict:
                 self.splitByTime(splitCriteria['n'],
                                  splitCriteria['tier'],
@@ -543,7 +546,6 @@ class SpeechCluster:
             newSeg = SpeechCluster()
             for tier in self.tiers:
                 newTier = tier.getSlice(dataMin, dataMax)
-
                 # pad for silence
                 if dataMin == 0: pad = 0
                 else: pad = 0.5 - dataMin
@@ -564,15 +566,12 @@ class SpeechCluster:
                     silSeg.max = 0.5
                     newTier.insert(0, silSeg)
                 newSeg.updateTiers(newTier)
-
             # save seg file
             newSeg.fstem = '%s_%03d' % (self.fstem, count)
             saveFn = '%s%s%s.%s' \
                      % (saveDir, os.path.sep,
                         newSeg.fstem, saveSegFormat)
-            open(saveFn,
-                 'w').write(newSeg.write_format(saveSegFormat))
-            
+            file_write(saveFn, newSeg.write_format(saveSegFormat))
             # split and save wav
             saveWavFn = '%s%s%s_%03d.wav' \
                         % (saveDir, os.path.sep, self.fstem, count)
@@ -592,14 +591,8 @@ class SpeechCluster:
         tier = self.getTierByName(tierName)
         count = 1
         while tier:
-            if len(tier) >= 6:
-                # TODO: magic no. 5 = min segs allowed
-                theseSegs = copy.deepcopy(tier[:n])
-                # nb: theseSegs=tier[:n] causes weird error
-                tier = tier[step:]
-            else:
-                theseSegs = tier
-                tier = []
+            theseSegs = copy.deepcopy(tier[:n])
+            tier = tier[step:]
             # split and save seg tier
             newSeg = SpeechCluster()
             newTier = SegmentationTier()
@@ -631,8 +624,7 @@ class SpeechCluster:
             newSeg.fstem = '%s_%03d' % (self.fstem, count)
             saveFn = '%s%s%s.%s' \
                      % (saveDir, os.path.sep, newSeg.fstem, saveSegFormat)
-            open(saveFn,
-                 'w').write(newSeg.write_format(saveSegFormat))
+            file_write(saveFn, newSeg.write_format(saveSegFormat))
             # split and save wav
             saveWavFn = '%s%s%s_%03d.wav' \
                         % (saveDir, os.path.sep, self.fstem, count)
@@ -685,8 +677,7 @@ class SpeechCluster:
             newSeg.fstem = '%s_%03d' % (self.fstem, count)
             saveFn = '%s%s%s.%s' \
                      % (saveDir, os.path.sep, newSeg.fstem, saveSegFormat)
-            open(saveFn,
-                 'w').write(newSeg.write_format(saveSegFormat))
+            file_write(saveFn, newSeg.write_format(saveSegFormat))
             # split and save wav
             saveWavFn = '%s%s%s_%03d.wav' \
                         % (saveDir, os.path.sep, self.fstem, count)
@@ -754,8 +745,8 @@ class SpeechCluster:
         return mark
 
     def frame2int(self, frame):
-        x = ord(frame[0])
-        y = ord(frame[1])
+        x = frame[0]
+        y = frame[1]
         z = (y*256) + x
         if y > 127:
             z -= 65536
@@ -807,6 +798,13 @@ class Segment:
     def __str__(self):
         return '%s\t(%s, %s)' % (self.label, self.min, self.max)
 
+    def __eq__(self, other):
+        if isinstance(other, Segment):
+            return self.label == other.label and \
+                self.min == other.min and \
+                self.max == other.max
+        return NotImplemented
+
 def printUsage():
     print("""
 Label file converter.
@@ -815,5 +813,3 @@ Label file converter.
     
 if __name__ == '__main__':
     pass
-
-#

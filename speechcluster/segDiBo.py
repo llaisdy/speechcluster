@@ -9,8 +9,10 @@
 
 """
 
+import os
 import audioop, copy, wave
-from speechCluster import *
+
+from .speechCluster import *
 
 # magic text
 # stops and vowels wouldn't be necessary
@@ -29,12 +31,10 @@ silenceLabel = 'sil'
 phoneTier = 'Phone'
 
 def segDiBo(fstem):
-    print('* %s\n' % fstem)
     spcl = SpeechCluster(fstem)
     spcl.getPitchmarks()
     tier = spcl.getTierByName(phoneTier)
     newtier = copy.copy(tier)
-
     # do stops
     for seg in tier:
         if seg.label in stops:
@@ -63,7 +63,6 @@ def segDiBo(fstem):
             newtier.remove(seg)
             newtier.insertSegment(dbSeg)
             newtier.insertSegment(nSeg)
-
     # do vowel-silence
     for i in range(1, len(tier)):
         if tier[i].label == silenceLabel:
@@ -81,7 +80,6 @@ def segDiBo(fstem):
                 newtier.remove(seg)
                 newtier.insertSegment(dbSeg)
                 newtier.insertSegment(nSeg)
-                
     # do initial extra silences
     newtier.pop(0)
     sil = Segment()
@@ -109,7 +107,6 @@ def segDiBo(fstem):
         sil.min = newtier[-1].max
         sil.max = dataEnd
         newtier.insertSegment(sil)
-
     # move DB boundaries to nearest optimum
     # TODO: t = spcl.getNearestOptimum(t)
     for i in range(len(newtier)):
@@ -119,7 +116,6 @@ def segDiBo(fstem):
             if abs(t - seg.max) < 0.01:
                 newtier[i].max = t
                 newtier[i+1].min = t
-    
     # save
     spcl.tiers.remove(tier)
     spcl.updateTiers(newtier)
@@ -129,37 +125,37 @@ def segDiBo(fstem):
     
 
 def findQuiet(spcl, seg, windowSize=0.01):
-        noiseTimes = []
-        quietTimes = []
-        data = wave.open(spcl.audioFn)
-        width = data.getsampwidth()
-        frate = data.getframerate()
-        nframes = data.getnframes()
-        endTime = nframes*1.0/frate
-        segBegin = int(seg.min * frate)
-        segNframes = int((seg.max - seg.min) * frate)
-        data.setpos(segBegin)
-        rmsFull = audioop.rms(data.readframes(segNframes), width)
-        data.setpos(segBegin)
-        window = int(frate*windowSize)
-        step = window/2
-        while data.tell() < segBegin + segNframes - step:
-            sample = data.readframes(window)
-            rms = audioop.rms(sample, width)
-            now = data.tell()*1.0/(frate)
-            if rms > rmsFull/10:
-                noiseTimes.append(now)
-            else:
-                quietTimes.append(now)
-            data.setpos(data.tell()-step)
-        if len(quietTimes) < len(noiseTimes)/2:
-            print('*** WARNING: %s :: / %s /' % (spcl.fstem, seg.label))
-        if not len(quietTimes):
-            print('    DOUBLE WARNING: NO QUIET AT ALL!')
-            quietTimes.append(seg.min)
-            t = seg.min + ((seg.max - seg.min) / 4.0)
-            quietTimes.append(t)
-        return (quietTimes[0], quietTimes[-1])
+    noiseTimes = []
+    quietTimes = []
+    data = wave.open(spcl.audioFn)
+    width = data.getsampwidth()
+    frate = data.getframerate()
+    nframes = data.getnframes()
+    endTime = nframes*1.0/frate
+    segBegin = int(seg.min * frate)
+    segNframes = int((seg.max - seg.min) * frate)
+    data.setpos(segBegin)
+    rmsFull = audioop.rms(data.readframes(segNframes), width)
+    data.setpos(segBegin)
+    window = int(frate*windowSize)
+    step = int(window/2)
+    while data.tell() < segBegin + segNframes - step:
+        sample = data.readframes(window)
+        rms = audioop.rms(sample, width)
+        now = data.tell()*1.0/(frate)
+        if rms > rmsFull/10:
+            noiseTimes.append(now)
+        else:
+            quietTimes.append(now)
+        data.setpos(data.tell()-step)
+    if len(quietTimes) < len(noiseTimes)/2:
+        print('*** WARNING: %s :: / %s /' % (spcl.fstem, seg.label))
+    if not len(quietTimes):
+        print('    DOUBLE WARNING: NO QUIET AT ALL!')
+        quietTimes.append(seg.min)
+        t = seg.min + ((seg.max - seg.min) / 4.0)
+        quietTimes.append(t)
+    return (quietTimes[0], quietTimes[-1])
             
 def printUsage():
     print("""\
@@ -175,18 +171,20 @@ segDiBo.py -d <dataDirectory>
 
 """)
 
+def segDiBoDir(dirn):
+    fstems = [os.path.splitext(fn)[0]
+              for fn in os.listdir(dirn)
+              if os.path.splitext(fn)[1] == '.wav']
+    os.chdir(dirn)
+    for fstem in fstems:
+        segDiBo(fstem)
+
 if __name__ == '__main__':
     import getopt, os, sys
     options, args = getopt.getopt(sys.argv[1:], 'd:i:o:')
     oDict = dict(options)
     if oDict.get('-d'):
-        testDir = oDict['-d']
-        fstems = [os.path.splitext(fn)[0]
-                  for fn in os.listdir(testDir)
-                  if os.path.splitext(fn)[1] == '.wav']
-        os.chdir(testDir)
-        for fstem in fstems:
-            segDiBo(fstem)
-            #segDiBo(os.path.join(testDir, fstem))
+        dirn = oDict['-d']
+        segDiBoDir(dirn)
     else:
         printUsage()

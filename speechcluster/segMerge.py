@@ -9,7 +9,7 @@
 """
 
 import os
-from speechCluster import SpeechCluster
+from .speechCluster import SpeechCluster
 
 def segMerge(argList, debug=False):
     """segMerge: Merges several label files into one

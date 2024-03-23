@@ -8,22 +8,25 @@
 
 """
 
+import json
 import os
-from speechCluster import SpeechCluster
+from .speechCluster import SpeechCluster
+from .utils import set_directory
 
-def segReplace(replaceDict, fn, debug=False):
+def segReplace(fn, replaceDict, debug=False):
     spcl = SpeechCluster(fn, debug)
     if spcl.segFormat not in [None, 'wav']: # skip unsupported formats
         spcl.replaceLabs(replaceDict)
         outFormat = os.path.splitext(fn)[1][1:] # without the dot
         out = spcl.write_format(outFormat)
-        open(fn, 'w').write(out)
+        with open(fn, 'w') as f:
+            f.write(out)
 
-def segReplaceDir(dir, replaceDict, debug=False):
-    os.chdir(dir)
-    for fn in os.listdir(os.getcwd()):
-        segReplace(replaceDict, fn, debug)
-        print(f'Done {fn}')
+def segReplaceDir(dirn, replaceDict, debug=False):
+    with set_directory(dirn):
+        for fn in os.listdir(os.getcwd()):
+            segReplace(fn, replaceDict, debug)
+            print(f'Done {fn}')
 
 def printUsage():
     print("""
@@ -58,13 +61,12 @@ if __name__ == '__main__':
         options, args = getopt.getopt(sys.argv[1:], 'd:r:')
         oDict = dict(options)
         if oDict.get('-r'):
-            replaceDictFn = oDict['-r']
-            exec(open(replaceDictFn).read())
+            replaceDict = json.load(open(oDict['-r']))['replaceDict']
             if oDict.get('-d'):
                 segReplaceDir(oDict['-d'], replaceDict)
             else:
                 fn = args[0]
-                segReplace(replaceDict, fn)
+                segReplace(fn, replaceDict)
         else: printUsage()
     else:
         printUsage()

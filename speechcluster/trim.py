@@ -7,7 +7,7 @@
 
 """
 
-from speechCluster import *
+from .speechCluster import *
 
 def trim(fn, pad):
     sc = SpeechCluster(fn)
@@ -44,7 +44,22 @@ trim.py -d testdir  # trims all files in testdir, including any seg files,
 
     
 """)
-    
+
+def trimDir(wdir, pad):
+    import os
+    fns = os.listdir(wdir)
+    os.chdir(wdir)
+    fstems = {}
+    for fstem in [os.path.splitext(fn)[0]
+                  for fn in os.listdir(os.getcwd())]:
+        fstems.setdefault(fstem, []).append(1)
+    for fstem in fstems:
+        print(fstem)
+        print(fstems[fstem])
+        if len(fstems[fstem]) == 1:
+            fstem = '%s.wav' % fstem
+        trim(fstem, pad)
+
 if __name__ == '__main__':
     import getopt, os, sys
     options, args = getopt.getopt(sys.argv[1:], 'd:p:')
@@ -55,20 +70,8 @@ if __name__ == '__main__':
         else:
             pad = eval(oDict['-p'])
         if oDict.get('-d'):
-            import os
             wdir = oDict['-d']
-            fns = os.listdir(wdir)
-            os.chdir(wdir)
-            fstems = {}
-            for fstem in [os.path.splitext(fn)[0]
-                          for fn in os.listdir(os.getcwd())]:
-                fstems.setdefault(fstem, []).append(1)
-            for fstem in fstems:
-                print(fstem)
-                print(fstems[fstem])
-                if len(fstems[fstem]) == 1:
-                    fstem = '%s.wav' % fstem
-                trim(fstem, pad)
+            trimDir(wdir, pad)
         else:
             fn = args[0]
             trim(fn, pad)

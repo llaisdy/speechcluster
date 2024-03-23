@@ -8,7 +8,7 @@
 """
 
 import os
-from speechCluster import *
+from .speechCluster import *
 
 def optionList2criteriaDict(optList):
     """takes option list in format e.g.,
