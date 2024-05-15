@@ -1,5 +1,12 @@
 # SpeechCluster: A speech database builder's multitool
-## Overview, installation
+## Overview
+
+SpeechCluster is on [PyPi](https://pypi.org/project/speechcluster/), and can be installed with
+
+```
+$ pip install speechcluster
+```
+
 ### Introduction
 
 SpeechCluster is a library, and a cli (`sc`) for working with speech data, in the form of sound files and their associated transcriptions.  The primary use case (at least, what I use it for) is for building acoustic models.
@@ -18,11 +25,9 @@ SpeechCluster and the associated command-line tools are all written in Python & 
 
 At the moment, the only audio format supported by SpeechCluster is Microsoft's RIFF format (.wav).  Furthermore, SpeechCluster assumes audio signals are mono.  For this reason, the unix utility `sox` will be useful.  Linux distributions will have this.  The `sox` homepage is: <http://sox.sourceforge.net>.
 
-### Download & Installation
+### Local Installation
 
-I hope to publish SpeechCluster to pypi soon, but in the meantime, speechCluster.py and all the command-line tools below are in the speechcluster directory in this repo.
-
-The cli can be accessed via `python -m speechcluster` or, better, by installing locally with [build](https://pypi.org/project/build/), as in:
+As well as downloading from pypi, speechCluster.py and all the command-line tools below are in the speechcluster directory in this repo.  The cli can be accessed via `python -m speechcluster` or, better, by installing locally with [build](https://pypi.org/project/build/), as in:
 
 ```
 $ pip install -r requirements-packaging.txt
@@ -44,9 +49,11 @@ Successfully installed speechcluster-2.0.0
 
 Some proximate goals for SpeechCluster are:
 
-- publish to PyPi
 - improve test coverage and code quality
 - add `sc force` subcommand to do forced alignment with PyTorch
+- expand remit to include
+  - corpus management
+  - more general frontend to PyTorch/JAX/etc
 
 ## `sc` and its subcommands
 ### Overview
