@@ -1,10 +1,17 @@
 # SpeechCluster: A speech database builder's multitool
-## Overview, installation
+## Overview
+
+SpeechCluster is on [PyPi](https://pypi.org/project/speechcluster/), and can be installed with
+
+```
+$ pip install speechcluster
+```
+
 ### Introduction
 
 SpeechCluster is a library, and a cli (`sc`) for working with speech data, in the form of sound files and their associated transcriptions.  The primary use case (at least, what I use it for) is for building acoustic models.
 
-I created the first version in the early years of the 21st century, working on Welsh speech data at the University of Wales Bangor.  I am nw bringin it up to date, preparatory to hooking it up with PyTorch and others.
+I created the first version in the early years of the 21st century, working on Welsh speech data at the University of Wales Bangor.  I am now bringing it up to date, preparatory to hooking it up with PyTorch and others.
 
 If you use SpeechCluster or its associated tools in published research, please let me know!  And please use this citation in your references section: 
 
@@ -18,11 +25,9 @@ SpeechCluster and the associated command-line tools are all written in Python & 
 
 At the moment, the only audio format supported by SpeechCluster is Microsoft's RIFF format (.wav).  Furthermore, SpeechCluster assumes audio signals are mono.  For this reason, the unix utility `sox` will be useful.  Linux distributions will have this.  The `sox` homepage is: <http://sox.sourceforge.net>.
 
-### Download & Installation
+### Local Installation
 
-I hope to publish SpeechCluster to pypi soon, but in the meantime, speechCluster.py and all the command-line tools below are in the speechcluster directory in this repo.
-
-The cli can be accessed via `python -m speechcluster` or, better, by installing locally with [build](https://pypi.org/project/build/), as in:
+As well as downloading from pypi, speechCluster.py and all the command-line tools below are in the speechcluster directory in this repo.  The cli can be accessed via `python -m speechcluster` or, better, by installing locally with [build](https://pypi.org/project/build/), as in:
 
 ```
 $ pip install -r requirements-packaging.txt
@@ -44,9 +49,11 @@ Successfully installed speechcluster-2.0.0
 
 Some proximate goals for SpeechCluster are:
 
-- publish to PyPi
 - improve test coverage and code quality
 - add `sc force` subcommand to do forced alignment with PyTorch
+- expand remit to include
+  - corpus management
+  - more general frontend to PyTorch/JAX/etc
 
 ## `sc` and its subcommands
 ### Overview
@@ -101,9 +108,9 @@ nb: the sections below use the new `sc <subcommand>` form, but the original scri
 
 ### `sc fake` (segFake.py)
 
-`sc fake` does 'fake autosegmentation' of a speech audio file.  At the moment it assumes one utterance per file, with bounding silences.  segFake detects utterance onset and offset, and spreads the given labels evenly over the intervening time.  
+`sc fake` does "fake autosegmentation" of a speech audio file.  At the moment it assumes one utterance per file, with bounding silences.  segFake detects utterance onset and offset, and spreads the given labels evenly over the intervening time.
 
-The chances of getting any label boundary correct are of course virtually zero, but I have found it quicker and easier to correct one of these than to start labelling from scratch.  Correcting a 'fake' transcription is also less error-prone, as the labels to use are already provided and don't need to be specified by the user.
+The chances of getting any label boundary correct are of course virtually zero, but I have found it quicker and easier to correct one of these than to start labelling from scratch.  Correcting a "fake" transcription is also less error-prone, as the labels to use are already provided and don't need to be specified by the user.
 
 #### Usage
 
@@ -157,7 +164,7 @@ Add word labels into all files in a directory, using the given transcription fil
 #### Notes
 
 -   only TextGrid label format is supported
--   the default level/tierName is 'Word'
+-   the default level/tierName is "Word"
 -   labels do not have to be quoted on the command-line
 -   see `fake` for transcription file format.
 -   `inter` assumes that the first and last segments in the textGrid are silence, and adds Word-level silences accordingly (i.e. don't specify them explicitly).
@@ -286,7 +293,7 @@ SpeechCluster can read/write/convert any of these formats in any direction.
 
 ## Acknowledgements
 
-This work was carried out as part of the project 'Welsh and Irish Speech Processing Resources' (Prys, et al., 2004).  WISPR was funded by the Interreg IIIA European Union Programme and the Welsh Language Board. I should also like to acknowledge support and feedback from other members of the WISPR team, in particular Briony Williams and Aine Ni Bhrian.
+This work was carried out as part of the project "Welsh and Irish Speech Processing Resources" (Prys, et al., 2004).  WISPR was funded by the Interreg IIIA European Union Programme and the Welsh Language Board. I should also like to acknowledge support and feedback from other members of the WISPR team, in particular Briony Williams and Aine Ni Bhrian.
 
 The three audio files in `test/data/` are taken from Mozilla's [Common Voice](https://commonvoice.mozilla.org) corpus for English.
 
