@@ -2,9 +2,6 @@
 
 """
 * speechCluster: central API for SpeechCluster objects
-
-** TODO
-
 """
 
 import audioop, math, os, re, wave
@@ -100,11 +97,11 @@ class SpeechCluster:
                         j += 1
                 elif spacedKeys and (lab in spk):
                     # eg /t sh/ -> /ch/
-                    #firstOldLabel = spacedKeys[lab][0].split()[0]
                     secondOldLabel = spacedKeys[lab][0].split()[1]
                     newLabel = spacedKeys[lab][1]
-                    print('%s + %s -> %s' \
-                          % (lab, secondOldLabel, newLabel))
+                    if self.debug is True:
+                        print('%s + %s -> %s' \
+                              % (lab, secondOldLabel, newLabel))
                     if self.tiers[i][j+1].label == secondOldLabel:
                         newseg = Segment()
                         newseg.min = self.tiers[i][j].min
@@ -113,11 +110,7 @@ class SpeechCluster:
                         insertions.append((newseg, i))
                         self.tiers[i][:] = self.tiers[i][:j] \
                                            + self.tiers[i][j+2:]
-                        #self.removeSegnFromTiern(j, i)
-                        #self.removeSegnFromTiern(j, i)
                     j += 1
-                #elif self.tiers[i][j].label == self.tiers[i][j-1].label:
-                #        self.removeSegnFromTiern(j, i)
                 else: j += 1
         for seg, i in insertions:
             self.tiers[i].insertSegment(seg)
@@ -810,6 +803,3 @@ def printUsage():
 Label file converter.
 
 """)
-    
-if __name__ == '__main__':
-    pass
