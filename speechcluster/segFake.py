@@ -10,6 +10,7 @@
 import json
 
 from .speechCluster import *
+from .utils import set_directory
 
 def fakeLabel(fn, phoneList, outFormat='TextGrid'):
     seg = SpeechCluster(fn)
@@ -50,10 +51,15 @@ segFake.py -f <filename> -o (TextGrid | esps ) <phones>
 
 segFake -d <dirname> -t <transcription.fn> -o (TextGrid | esps )
     e.g.:
-    segFake.py -d wav -t trans.txt -o TextGrid \
+    segFake.py -d wav -c context.json -o TextGrid \
 
-Transcription files should be one transcription per line, of the form:
-    (amser012 "m ai hh i n y n j o n b y m m y n y d w e d i yy n @ b o r e.")
+context.json should contain a "transDict" object with key value pairs like this:
+
+    {"transDict": {
+        "amser012": "m ai hh i n y n j o n b y m m y n y d w e d i yy n @ b o r e.",
+        ...
+       }
+    }
 
 Output Formats supported:
   Format            File Extension(s)
@@ -68,14 +74,16 @@ def fakeLabel_and_write(wavFn, phonData, outFormat):
     seg = fakeLabel(wavFn, phonData, outFormat)
     fstem = os.path.splitext(wavFn)[0]
     segFn = '%s.%s' % (fstem, outFormat)
-    open('%s' % segFn, 'w').write(seg)
+    with open(segFn, 'w') as f:
+        f.write(seg)
+
 
 def fakeLabel_and_write_dir(wavDir, transDict, outFormat):
     lines = list(transDict.items())
-    os.chdir(wavDir)
-    for wavFn, phonData in lines:
-        phonData = phonData.replace('.', '').replace('"', '').split()
-        fakeLabel_and_write(wavFn, phonData, outFormat)
+    with set_directory(wavDir):
+        for wavFn, phonData in lines:
+            phonData = phonData.replace('.', '').replace('"', '').split()
+            fakeLabel_and_write(wavFn, phonData, outFormat)
     
 if __name__ == '__main__':
     import getopt, sys

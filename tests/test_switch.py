@@ -33,11 +33,12 @@ class SwitchTestCase(unittest.TestCase):
         s1 = SpeechCluster(fn_in)
         s1labs = [s.label for s in s1.getTierByName(level)]
         segSwitch(fn_in, fn_out)
-        # TODO fn_in should remain unchanged
         s2 = SpeechCluster(fn_out)
         s2labs = [s.label for s in s2.tiers[0]]
         self.assertEqual('esps', s2.segFormat)
         self.assertEqual(s1labs, s2labs)
+        s3 = SpeechCluster(fn_in)
+        self.assertEqual('TextGrid', s3.segFormat)
 
 if __name__ == '__main__':
     unittest.main()

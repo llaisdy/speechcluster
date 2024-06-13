@@ -189,8 +189,8 @@ PARSERS_TO_ADD = (
     (add_inter_parser, sc_inter, sc_inter_validation),
     (add_merge_parser, sc_merge, sc_merge_validation),
     (add_replace_parser, sc_replace, sc_replace_validation),
-    (add_switch_parser, sc_switch, sc_switch_validation),
     (add_splitall_parser, sc_splitall, None),
+    (add_switch_parser, sc_switch, sc_switch_validation),
     (add_trim_parser, sc_trim, sc_trim_validation),
 )
 
