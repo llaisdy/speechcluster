@@ -1,4 +1,4 @@
 # python 3.12
 build==1.2.2
-setuptools==75.8.0
+setuptools==80.10.2
 twine==6.1.0
